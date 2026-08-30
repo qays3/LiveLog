@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>...</title>
+<link rel="icon" type="image/png" href="../assets/img/logo.png">
+<link rel="apple-touch-icon" href="../assets/img/logo.png">
+<link rel="stylesheet" href="../assets/css/root.css">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/dashboard.css">
+<link rel="stylesheet" href="../assets/css/alerts.css">
+<link rel="stylesheet" href="../assets/css/domain-map.css">
+<link rel="stylesheet" href="../assets/css/toolbox.css">
+<style>
+.active-range {
+    background: var(--dark-primary-20) !important;
+    color: var(--dark-primary) !important;
+    border-color: var(--dark-primary-40) !important;
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <img src="../assets/img/logo.png" style="width:28px;height:28px;object-fit:contain;border-radius:6px">
+            </div>
+            <div>
+                <div class="sidebar-logo-text" id="app-name-text">...</div>
+                <div class="sidebar-logo-sub">Log Source Monitor</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Monitor</div>
+            <a class="nav-item" data-route="dashboard">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Dashboard
+            </a>
+            <a class="nav-item" data-route="domains">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                Domains
+            </a>
+            <a class="nav-item" data-route="collectors">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="4" rx="1"/><rect x="2" y="10" width="20" height="4" rx="1"/><rect x="2" y="17" width="20" height="4" rx="1"/></svg>
+                Collectors
+            </a>
+            <div class="nav-section-label" style="margin-top:6px">Alerts</div>
+            <a class="nav-item" data-route="alerts">
+                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Alerts
+                <span class="nav-item-count" id="nav-alerts-count"></span>
+            </a>
+            <a class="nav-item" data-route="historical-stops">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Historical Stops
+            </a>
+            <div class="nav-section-label" style="margin-top:6px">Tools &amp; Resources</div>
+            <a class="nav-item" data-route="infra">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><path d="M10 6.5h4a3 3 0 0 1 3 3V14"/></svg>
+                Infra Map
+            </a>
+            <a class="nav-item" data-route="toolbox">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="18" height="7" rx="1"/></svg>
+                Toolbox
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="poll-indicator">
+                <div class="poll-dot" id="poll-dot"></div>
+                <span id="last-updated-footer">Connecting...</span>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <span class="topbar-title" id="topbar-title">Dashboard</span>
+            <div class="topbar-right">
+                <span style="font-size:11px;color:var(--neutral-slate-600)" id="last-updated"></span>
+                <button class="refresh-btn" id="global-refresh-btn" onclick="triggerRefresh()">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Refresh
+                </button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div id="page-dashboard" class="page hidden fade-in">
+                <div class="page-header flex-between">
+                    <div>
+                        <div class="page-title">All Log Sources</div>
+                        <div class="page-subtitle" id="dash-subtitle"></div>
+                    </div>
+                </div>
+                <div class="stat-grid" id="dash-stats"></div>
+                <div class="filter-bar">
+                    <div class="filter-input-wrap">
+                        <span class="search-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                        <input type="text" class="filter-input" id="dash-search" placeholder="Search log sources...">
+                    </div>
+                    <select class="filter-select" id="dash-filter-domain"><option value="">All domains</option></select>
+                    <select class="filter-select" id="dash-filter-collector"><option value="">All collectors</option></select>
+                    <select class="filter-select" id="dash-filter-threshold"><option value="">All thresholds</option></select>
+                    <select class="filter-select" id="dash-filter-bucket"><option value="">All buckets</option></select>
+                    <div id="dash-col-picker-wrap" style="position:relative">
+                        <button class="btn btn-ghost btn-sm" onclick="toggleColPicker('dash-col-picker-wrap')" style="display:flex;align-items:center;gap:5px">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                            Columns
+                        </button>
+                    </div>
+                </div>
+                <div id="dash-table-skeleton" class="hidden"></div>
+                <div class="table-wrapper" id="dash-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th data-col="name">Name</th>
+                                <th data-col="type">Type</th>
+                                <th data-col="domain">Domain</th>
+                                <th data-col="collector">Collector</th>
+                                <th data-col="threshold">Threshold</th>
+                                <th data-col="last_event">Last Event</th>
+                                <th data-col="bucket">Bucket</th>
+                                <th data-col="eps">EPS</th>
+                                <th data-col="protocol">Protocol Type</th>
+                                <th data-col="identifier">Identifier</th>
+                                <th>History</th>
+                                <th data-col="status">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dash-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="page-domains" class="page hidden fade-in">
+                <div class="page-header flex-between">
+                    <div>
+                        <div class="page-title">Domains</div>
+                        <div class="page-subtitle" id="domains-subtitle"></div>
+                    </div>
+                </div>
+                <div id="domains-content"></div>
+            </div>
+
+            <div id="page-collectors" class="page hidden fade-in">
+                <div class="page-header flex-between">
+                    <div>
+                        <div class="page-title">Collectors</div>
+                        <div class="page-subtitle" id="collectors-subtitle"></div>
+                    </div>
+                </div>
+                <div id="collectors-content"></div>
+                <div id="eps-test-section"></div>
+            </div>
+
+            <div id="page-alerts" class="page hidden fade-in">
+                <div class="page-header flex-between">
+                    <div>
+                        <div class="page-title">Alerts <span id="alert-total-count" class="nav-item-count" style="font-size:11px;padding:1px 7px;vertical-align:middle;margin-left:4px"></span></div>
+                        <div class="page-subtitle">Active behavior breaches and anomalies</div>
+                    </div>
+                </div>
+                <div class="alert-engine-switch">
+                    <button class="alert-engine-btn" data-engine="historical" onclick="setAlertEngine('historical')">
+                        <span>Historical Behavior</span>
+                        <span class="engine-default-pin" onclick="toggleDefaultEngine('historical', event)">&#9734;</span>
+                    </button>
+                    <button class="alert-engine-btn" data-engine="qradar" onclick="setAlertEngine('qradar')">
+                        <span>QRadar Behavior Threshold</span>
+                        <span class="engine-default-pin" onclick="toggleDefaultEngine('qradar', event)">&#9734;</span>
+                    </button>
+                    <span id="alert-engine-note" class="alert-engine-note"></span>
+                </div>
+                <div class="alert-tabs" style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--dark-border);padding-bottom:0">
+                    <button class="alert-tab-btn active-tab" data-tab="active" onclick="setAlertTab('active')">Active <span class="alert-tab-count nav-item-count" style="font-size:10px"></span></button>
+                    <button class="alert-tab-btn" data-tab="reported" onclick="setAlertTab('reported')">Reported <span class="alert-tab-count nav-item-count" style="font-size:10px;background:var(--info-primary)"></span></button>
+                    <button class="alert-tab-btn" data-tab="notify_after" onclick="setAlertTab('notify_after')">Notify Me <span class="alert-tab-count nav-item-count" style="font-size:10px;background:var(--info-primary)"></span></button>
+                    <button class="alert-tab-btn" data-tab="ignored" onclick="setAlertTab('ignored')">Ignored <span class="alert-tab-count nav-item-count" style="font-size:10px;background:var(--neutral-medium)"></span></button>
+                </div>
+                <div class="alerts-filter-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:16px">
+                    <div class="filter-input-wrap">
+                        <span class="search-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                        <input type="text" class="filter-input" id="alert-search" placeholder="Search..." oninput="renderAlerts()">
+                    </div>
+                    <select class="filter-select" id="alert-filter-domain" onchange="renderAlerts()"><option value="">All domains</option></select>
+                    <select class="filter-select" id="alert-sort" onchange="renderAlerts()">
+                        <option value="oldest">Longest silence first</option>
+                        <option value="newest">Newest first</option>
+                    </select>
+                    <select class="filter-select" id="alert-filter-silence" onchange="renderAlerts()">
+                        <option value="">Any silence</option>
+                        <option value="5m">&le; 5 min</option>
+                        <option value="30m">&le; 30 min</option>
+                        <option value="1h">&le; 1 hour</option>
+                        <option value="4h">&le; 4 hours</option>
+                        <option value="12h">&le; 12 hours</option>
+                        <option value="1d">&le; 1 day</option>
+                        <option value="3d">&le; 3 days</option>
+                        <option value="7d">&le; 7 days</option>
+                        <option value="8d">&le; 8 days</option>
+                    </select>
+                </div>
+                <div id="alerts-skeleton" class="hidden" style="margin-top:8px"></div>
+                <div class="alerts-list" id="alerts-list"></div>
+            </div>
+
+            <div id="page-logsource" class="page hidden fade-in">
+                <div id="logsource-content"></div>
+            </div>
+
+            <div id="page-historical-stops" class="page hidden fade-in">
+                <div class="page-header">
+                    <div class="page-title">Historical Stops</div>
+                    <div class="page-subtitle">All resolved alarm stops across all log sources</div>
+                </div>
+                <div id="hs-filter-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+                    <div class="filter-input-wrap">
+                        <span class="search-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                        <input type="text" class="filter-input" id="hs-search" placeholder="Search log sources..." oninput="renderHistoricalStops()">
+                    </div>
+                    <select class="filter-select" id="hs-filter-domain" onchange="renderHistoricalStops()"><option value="">All domains</option></select>
+                    <select class="filter-select" id="hs-filter-gap" onchange="renderHistoricalStops()">
+                        <option value="">Any gap</option>
+                        <option value="5">&lt; 5 min</option>
+                        <option value="10">&lt; 10 min</option>
+                        <option value="20">&lt; 20 min</option>
+                        <option value="30">&lt; 30 min</option>
+                        <option value="60">&lt; 1 hour</option>
+                        <option value="120">&lt; 2 hours</option>
+                        <option value="240">&lt; 4 hours</option>
+                        <option value="480">&lt; 8 hours</option>
+                        <option value="720">&lt; 12 hours</option>
+                        <option value="1440">&lt; 1 day</option>
+                        <option value="gt1440">&gt; 1 day</option>
+                    </select>
+                    <div id="hs-col-picker-wrap">
+                        <button class="btn btn-ghost btn-sm" onclick="toggleHsColPicker()" style="display:flex;align-items:center;gap:5px">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                            Columns
+                        </button>
+                    </div>
+                    <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+                        <button class="stops-tab active-tab" data-range="today" onclick="setHsRange('today',this)">Today</button>
+                        <button class="stops-tab" data-range="yesterday" onclick="setHsRange('yesterday',this)">Yesterday</button>
+                        <button class="stops-tab" data-range="2days" onclick="setHsRange('2days',this)">2 Days Ago</button>
+                        <button class="stops-tab" data-range="3days" onclick="setHsRange('3days',this)">3 Days Ago</button>
+                        <button class="stops-tab" data-range="week" onclick="setHsRange('week',this)">This Week</button>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
+                    <div id="hs-count" style="font-size:12px;color:var(--neutral-slate-500)"></div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span id="hs-clear-status" style="font-size:11px"></span>
+                        <button class="btn btn-ghost btn-sm" id="hs-clear-btn"
+                            style="color:var(--dark-primary);border-color:var(--dark-primary-30)"
+                            onclick="clearVisibleStops()">Clear all</button>
+                    </div>
+                </div>
+                <div id="hs-body"></div>
+            </div>
+
+            <div id="page-infra" class="page hidden fade-in"></div>
+
+            <div id="page-toolbox" class="page hidden fade-in"></div>
+
+        </div>
+        <footer style="height:36px;min-height:36px;display:flex;align-items:center;justify-content:center;padding:0 20px;font-size:11px;color:var(--neutral-slate-600);border-top:1px solid var(--dark-border);flex-shrink:0;box-sizing:border-box">
+            Developed by <a href="https://qayssarayra.com/" target="_blank" style="color:var(--dark-primary);text-decoration:none;font-weight:600;margin:0 3px">Q.S</a> &amp; M.KH
+        </footer>
+    </div>
+</div>
+
+<script src="../assets/js/buckets.js"></script>
+<script src="../assets/js/charts.js"></script>
+<script src="../assets/js/labels.js"></script>
+<script src="../assets/js/alerts.js"></script>
+<script src="../assets/js/poller.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/dashboard.js"></script>
+<script src="../assets/js/domain-map.js"></script>
+<script src="../assets/js/domains.js"></script>
+<script src="../assets/js/collectors.js"></script>
+<script src="../assets/js/logsource.js"></script>
+<script src="../assets/js/source-analysis.js"></script>
+<script src="../assets/js/eps-test.js"></script>
+<script src="../assets/js/canvas-editor.js"></script>
+<script src="../assets/js/historical-stops.js"></script>
+<script src="../assets/js/stop-note-modal.js"></script>
+<script src="../assets/js/toolbox.js"></script>
+</body>
+</html>

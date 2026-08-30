@@ -1,0 +1,55 @@
+[qradar]
+host         = HOST
+token        = KEY_TOKEN
+verify_ssl   = false
+
+[polling]
+interval_sec = 30
+
+[server]
+port         = 9393
+host         = 0.0.0.0
+app_name     = LiveLog
+
+[output]
+data_dir     = ./data
+domains_dir  = ./data/domains
+
+[alerts]
+behavior_breach    = true
+eps_drop           = true
+undefined_behavior = true
+buffer_minutes     = 3
+max_bucket_min_count         = 4
+min_alert_minutes  = 5
+
+[downtime]
+enabled                 = true
+grace_minutes           = 10
+mass_gap_min_sources    = 5
+mass_gap_min_collectors = 2
+mass_gap_window_min     = 15
+
+[locale]
+timezone   = Jordan Standard Time
+
+[domains]
+list = DOMAINS
+
+[ignore_groups]
+list = Laptops
+
+[ignore_types]
+list = SIM Generic Log DSM
+
+[ignore_collectors]
+list =
+
+[ignore_source_ids]
+list =
+
+[ignore_name_patterns]
+list =
+
+[collector_domains]
+eventcollector641 :: COLLECTOR-NAME        = DOMAIN
